@@ -1,5 +1,6 @@
 package org.usfirst.frc.team5805.robot.commands;
 
+import org.usfirst.frc.team5805.robot.OI;
 import org.usfirst.frc.team5805.robot.Robot;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -14,7 +15,7 @@ public class CloseDumpSolenoid extends Command {
 	@Override
 	protected void initialize() {
 		Robot.cannon.closeDumpSolenoid();
-		Robot.oi.dStick.setRumble(RumbleType.kLeftRumble, -2);
+		OI.dStick.setRumble(RumbleType.kLeftRumble, -2);
 	}
 	
 	@Override

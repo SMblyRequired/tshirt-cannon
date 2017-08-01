@@ -1,13 +1,11 @@
 package org.usfirst.frc.team5805.robot;
 
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 import org.usfirst.frc.team5805.autos.CycleCartridgeSequence;
 import org.usfirst.frc.team5805.autos.FireCannon;
-import org.usfirst.frc.team5805.robot.commands.ExampleCommand;
 import org.usfirst.frc.team5805.robot.commands.ToggleBreach;
 
 /**
@@ -43,6 +41,11 @@ public class OI {
 	// until it is finished as determined by it's isFinished method.
 	// button.whenReleased(new ExampleCommand());
 	
+	/**
+	 * A simple mapping of buttons to integers (kinda), 
+	 * for easily identifying buttons used in 
+	 * controlling the robot.
+	 */
 	public enum XboxButtons {
 		NULL,
 		A,
@@ -57,8 +60,11 @@ public class OI {
 		RightAnalogButton
 	}
 	
+	// The player 1 Xbox controller
 	public static XboxController dStick = new XboxController(0);
 	
+	// Buttons mapped to commands on the player 1 Xbox controller, notice the first argument
+	// of each JoystickButton being the dStick defined above.
 	Button cycleButton = new JoystickButton(dStick, XboxButtons.LeftBumper.ordinal());
 	Button fireButton = new JoystickButton(dStick, XboxButtons.RightBumper.ordinal());
 	Button breachToggle = new JoystickButton(dStick, XboxButtons.X.ordinal());

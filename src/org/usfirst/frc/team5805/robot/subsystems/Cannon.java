@@ -6,7 +6,6 @@ import org.usfirst.frc.team5805.robot.StepperMotor;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.command.Subsystem;
 
 public class Cannon extends Subsystem {
@@ -29,21 +28,20 @@ public class Cannon extends Subsystem {
 	
 	@Override
 	protected void initDefaultCommand() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void cycleCartridge() {
-		releaseBreach();
-		// TODO: Start stepper motor cycle
-		engageBreach();
+		// We have no default command for our cannon subsystem
 	}
 	
+	/**
+	 * Disengage the breach. Required for indexer movement.
+	 */
 	public void releaseBreach() {
 		System.out.println("Releasing breach");
 		breachSolenoid.set(Value.kReverse);
 	}
 	
+	/**
+	 * Engage the breach. Required for firing.
+	 */
 	public void engageBreach() {
 		System.out.println("Engaging breach");
 		breachSolenoid.set(Value.kForward);
@@ -53,34 +51,71 @@ public class Cannon extends Subsystem {
 		return breachSolenoid.get() == Value.kForward ? BreachState.ENGAGED : BreachState.RELEASED;
 	}
 	
+	/**
+	 * Open solenoid that dumps air into the cartridge and fires the cannon.
+	 */
 	public void openDumpSolenoid() {
 		dumpSolenoid.set(false);
 	}
 	
+	/**
+	 * Open solenoid that dumps air into the cartridge and fires the cannon.
+	 */
 	public void closeDumpSolenoid() {
 		dumpSolenoid.set(true);
 	}
 	
+	/**
+	 * Move indexer forward, retrieving a new, filled cartridge, ready to be fired.
+	 */
 	public void indexerForward() {
-		// indexerMotor.step(1000);
-		indexerMotor.rotate(120);
+		try {
+			indexerMotor.setDirection(StepperMotor.Direction.CW);
+			indexerMotor.rotate(120);
+		} catch (Exception e) {
+			System.err.println("Error: Cannot move indexer forward. Stepper output not enabled.");
+		}
 	}
 	
+	/**
+	 * Move indexer backwards, retrieving an empty cartridge.
+	 */
 	public void indexerBack() {
-		indexerMotor.step(-1000);
+		try {
+			indexerMotor.setDirection(StepperMotor.Direction.CCW);
+			indexerMotor.rotate(120);
+		} catch (Exception e) {
+			System.err.println("Error: Cannot move indexer backwards. Stepper output not enabled.");
+		}
 	}
 	
+	/**
+	 * Enable the indexer. This is required for moving the indexer.
+	 */
 	public void enableIndexer() {
 		indexerMotor.enable();
 	}
 	
+	/**
+	 * Disable the indexer. This is required to freely move the indexer, by hand.
+	 */
 	public void disableIndexer() {
 		indexerMotor.disable();
 	}
 	
-	public void fire() throws InterruptedException  {
-		dumpSolenoid.set(true);
-		Thread.sleep(25);
-		dumpSolenoid.set(false);
+	/**
+	 * Returns if the motor is enabled, or not.
+	 * @return true if enabled, false if disabled
+	 */
+	public boolean indexerEnabled() {
+		return indexerMotor.isEnabled();
+	}
+
+	/**
+	 * Determines if the indexer is moving
+	 * @return true if moving, false if not
+	 */
+	public boolean indexerMoving() {
+		return indexerMotor.isStepping();
 	}
 }

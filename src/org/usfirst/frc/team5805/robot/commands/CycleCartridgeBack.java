@@ -5,8 +5,8 @@ import org.usfirst.frc.team5805.robot.subsystems.Cannon.BreachState;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class CycleCartridgeFwd extends Command {
-	public CycleCartridgeFwd() {
+public class CycleCartridgeBack extends Command {
+	public CycleCartridgeBack() {
 		super(1);
 		requires(Robot.cannon);
 	}
@@ -19,7 +19,7 @@ public class CycleCartridgeFwd extends Command {
 		}
 		
 		Robot.cannon.enableIndexer();
-		Robot.cannon.indexerForward();
+		Robot.cannon.indexerBack();
 	}
 	 
 	@Override

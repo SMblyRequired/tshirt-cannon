@@ -17,18 +17,18 @@ public class RobotMap {
 	// public static int rangefinderPort = 1;
 	// public static int rangefinderModule = 1;
 	
+	// PWM ports for drive train VictorSP's
 	public static int FRONTLEFT = 0;
 	public static int REARLEFT = 1;
 	public static int FRONTRIGHT = 2;
 	public static int REARRIGHT = 3;
 	
+	// PCM ports for solenoids
 	public static int BREACH_SOLENOID_OPEN = 0;
 	public static int BREACH_SOLENOID_CLOSE = 1;
-	public static int DUMP_SOLENOID = 2;
 	
+	// TODO: Move below ints to OI.java, as that's where they really belong
     public static int RIGHT_TRIGGER = 3;
     public static int RIGHT_X_AXIS = 1;
     public static int LEFT_Y_AXIS = 4; 
-    
-    public static int TOGGLE_BREACH = 1;
 }

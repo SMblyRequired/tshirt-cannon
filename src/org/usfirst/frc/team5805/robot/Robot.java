@@ -1,3 +1,9 @@
+/*
+ * This code is to be used as an introduction for new programmers
+ * to team 5805, SMblyRequired. This code retains default comments
+ * meant to aid in team members understanding the flow of the code.
+ *      (In other words, please do not remove any comments.)
+ */
 
 package org.usfirst.frc.team5805.robot;
 
@@ -8,22 +14,19 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import org.usfirst.frc.team5805.robot.commands.ExampleCommand;
+import org.usfirst.frc.team5805.autos.CycleCartridgeSequence;
+import org.usfirst.frc.team5805.autos.FireCannon;
+import org.usfirst.frc.team5805.robot.commands.CycleCartridgeBack;
+import org.usfirst.frc.team5805.robot.commands.CycleCartridgeFwd;
+import org.usfirst.frc.team5805.robot.commands.DisableIndexer;
+import org.usfirst.frc.team5805.robot.commands.EnableIndexer;
+import org.usfirst.frc.team5805.robot.commands.EngageBreachCommand;
+import org.usfirst.frc.team5805.robot.commands.ReleaseBreachCommand;
 import org.usfirst.frc.team5805.robot.subsystems.Cannon;
 import org.usfirst.frc.team5805.robot.subsystems.DriveTrain;
-import org.usfirst.frc.team5805.robot.subsystems.ExampleSubsystem;
 import org.usfirst.frc.team5805.robot.subsystems.Cannon.BreachState;
 
-/**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to each mode, as described in the IterativeRobot
- * documentation. If you change the name of this class or the package after
- * creating this project, you must also update the manifest file in the resource
- * directory.
- */
 public class Robot extends IterativeRobot {
-
-	public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 	public static OI oi;
 
 	Command autonomousCommand;
@@ -42,8 +45,6 @@ public class Robot extends IterativeRobot {
 		driveTrain = new DriveTrain();
 		
 		oi = new OI();
-		
-		
 	}
 
 	/**
@@ -53,7 +54,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void disabledInit() {
-
+		
 	}
 
 	@Override
@@ -74,18 +75,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		autonomousCommand = chooser.getSelected();
-
-		/*
-		 * String autoSelected = SmartDashboard.getString("Auto Selector",
-		 * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
-		 * = new MyAutoCommand(); break; case "Default Auto": default:
-		 * autonomousCommand = new ExampleCommand(); break; }
-		 */
-
-		// schedule the autonomous command (example)
-		if (autonomousCommand != null)
-			autonomousCommand.start();
+		
 	}
 
 	/**
@@ -98,14 +88,19 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopInit() {
-		// This makes sure that the autonomous stops running when
-		// teleop starts running. If you want the autonomous to
-		// continue until interrupted by another command, remove
-		// this line or comment it out.
-		if (autonomousCommand != null)
-			autonomousCommand.cancel();
-		
 		Robot.cannon.releaseBreach();
+		
+		// Commands for manual operation of subsystems
+		SmartDashboard.putData("Indexer Forward", new CycleCartridgeFwd());
+		SmartDashboard.putData("Indexer Backward", new CycleCartridgeBack());
+		SmartDashboard.putData("Enable Indexer", new EnableIndexer());
+		SmartDashboard.putData("Disable Indexer", new DisableIndexer());
+		
+		SmartDashboard.putData("Engage Breach", new EngageBreachCommand());
+		SmartDashboard.putData("Disengage Breach", new ReleaseBreachCommand());
+		
+		SmartDashboard.putData("Fire Cannon", new FireCannon());
+		SmartDashboard.putData("Cycle cartridge", new CycleCartridgeSequence());
 	}
 
 	/**
@@ -115,7 +110,10 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
 		
-		SmartDashboard.putBoolean("Breach State", Robot.cannon.getBreachState() == BreachState.ENGAGED ? true : false);
+		SmartDashboard.putBoolean("Breach Engaged", Robot.cannon.getBreachState() == BreachState.ENGAGED ? true : false);
+		SmartDashboard.putBoolean("Indexer Enabled", Robot.cannon.indexerEnabled());
+		
+		// TODO: Get some pressure sensors to retrieve current pressure within system
 	}
 
 	/**

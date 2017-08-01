@@ -1,14 +1,8 @@
 package org.usfirst.frc.team5805.robot.subsystems;
 
-import org.usfirst.frc.team5805.robot.Robot;
 import org.usfirst.frc.team5805.robot.RobotMap;
 import org.usfirst.frc.team5805.robot.commands.MoveWithJoystick;
 
-import com.ctre.CANTalon;
-import com.ctre.CANTalon.FeedbackDevice;
-
-import edu.wpi.first.wpilibj.PIDSource;
-import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.command.Subsystem;

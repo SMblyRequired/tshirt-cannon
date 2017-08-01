@@ -1,5 +1,8 @@
 package org.usfirst.frc.team5805.robot;
 
+/**
+ * Some helpful math utilities.
+ */
 public class MathSM {
 	public static double clamp(double inVal, double min, double max) {
 		return Math.max(min, Math.min(max, inVal));
