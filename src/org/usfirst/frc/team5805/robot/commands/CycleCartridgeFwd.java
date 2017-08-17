@@ -21,6 +21,11 @@ public class CycleCartridgeFwd extends Command {
 		Robot.cannon.enableIndexer();
 		Robot.cannon.indexerForward();
 	}
+	
+	@Override
+	public synchronized void cancel() {
+	    Robot.cannon.stopIndexer();
+	}
 	 
 	@Override
 	protected boolean isFinished() {

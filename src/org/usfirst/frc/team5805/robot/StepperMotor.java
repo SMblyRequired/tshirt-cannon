@@ -1,5 +1,6 @@
 package org.usfirst.frc.team5805.robot;
 import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.hal.HAL;
 
 public class StepperMotor {
 	int pulsePin, dirPin, enablePin;
@@ -9,11 +10,44 @@ public class StepperMotor {
 	int stepsPerRev;
 	
 	boolean moving = false;
+	boolean interrupt = false;
+	int stepsLeft;
 	
 	public enum Direction {        // Direction motor should move, relative to direction motor is facing
 		CW,                        // Clockwise rotation
 		CCW                        // Counter-clockwise rotation
 	}
+	
+	private class StepperMotionThread extends Thread {   
+	    public StepperMotionThread() {
+	        super("StepperMotionManager");
+	    }
+	    
+	    public void run() {
+	        moving = true;
+	        
+	        long lastPulse = System.nanoTime();                   // Record the last time a pulse was sent, or the initial time
+	        while (stepsLeft > 0 && HAL.getSystemActive() && !interrupt) {          // Ensure stepper motor stops when robot is disabled, or when we've reached our end goal
+	            moving = true;                                    // Let everyone know we're moving
+	            
+	            long curTime = System.nanoTime();                 // Record the current time within the loop
+	            long microDiff = (curTime - lastPulse) / 1000;    // Calculate how long it's been since we've set lastPulse
+	            if (microDiff >= stepDelay) {                     // If the current difference is time is greater than the amount of time we want between pulses...
+	                lastPulse = curTime;                          // Set our lastPulse variable to now
+	                stepsLeft--;                                      // Decrement the amount of steps we've taken
+	                pulseOut.set(true);                           // And finally, send the pulse!
+	            } else {
+	                pulseOut.set(false);                          // Otherwise, turn off our pulse output
+	            }
+	        }
+	        
+	        if (interrupt) interrupt = !interrupt;                // If we've been interrupted, reset it
+	        
+	        moving = false;                                       // Let everyone know we're done moving
+	    }
+	}
+	
+	private StepperMotionThread motionThread;
 	
 	public StepperMotor(int _stepsPerRev, int _pulsePin, int _dirPin, int _enablePin) {
 		this.pulsePin = _pulsePin;
@@ -25,6 +59,8 @@ public class StepperMotor {
 		dirOut = new DigitalOutput(this.dirPin);
 		enableOut = new DigitalOutput(this.enablePin);
 		
+		motionThread = new StepperMotionThread();
+		
 		enable();
 		setSpeed(120);
 	}
@@ -34,26 +70,25 @@ public class StepperMotor {
 	 * @param steps Amount of steps motor should move
 	 * @throws Exception Expect an exception if the motor is not enabled
 	 */
-	public void step(int steps) throws Exception {
-		if (!isEnabled()) throw new Exception("Motor not enabled");
+	public void step(int steps) throws AlreadyMovingException, NotEnabledException {
+		if (!isEnabled()) throw new NotEnabledException();
+		if (moving) throw new AlreadyMovingException();
 		
-		long lastPulse = System.nanoTime();                   // Record the last time a pulse was sent, or the initial time
-		while (steps > 0 && isEnabled()) {                    // Ensure stepper motor stops when robot is disabled, or when we've reached our end goal
-		    moving = true;                                    // Let everyone know we're moving
-			
-			long curTime = System.nanoTime();                 // Record the current time within the loop
-			long microDiff = (curTime - lastPulse) / 1000;    // Calculate how long it's been since we've set lastPulse
-			if (microDiff >= stepDelay) {                     // If the current difference is time is greater than the amount of time we want between pulses...
-				lastPulse = curTime;                          // Set our lastPulse variable to now
-				steps--;                                      // Decrement the amount of steps we've taken
-				pulseOut.set(true);                           // And finally, send the pulse!
-			} else {
-				pulseOut.set(false);                          // Otherwise, turn off our pulse output
-			}
-		}
-		
-		moving = false;                                       // Let everyone know we're done moving
+		stepsLeft = steps;
+		motionThread.start();
 	}
+	
+	public class NotEnabledException extends Exception {
+	    public NotEnabledException() {
+	        super("StepperMotor not enabled");
+	    }
+	}
+	
+	public class AlreadyMovingException extends Exception {
+        public AlreadyMovingException() {
+            super("StepperMotor already in motion");
+        }
+    }
 	
 	public boolean isStepping() {
 		return moving;
@@ -64,7 +99,7 @@ public class StepperMotor {
 	 * @param rotations Number of rotations
 	 * @throws Exception Expect an exception if the motor is not enabled
 	 */
-	public void rotate(double rotations) throws Exception {
+	public void rotate(double rotations) throws AlreadyMovingException, NotEnabledException {
 		step((int)(rotations * stepsPerRev) / 2);         // This method calculates how many steps are in some amount of rotations
 	}
 	
@@ -73,7 +108,7 @@ public class StepperMotor {
 	 * @param degrees
 	 * @throws Exception Expect an exception if the motor is not enabled
 	 */
-	public void rotateDeg(double degrees) throws Exception {
+	public void rotateDeg(double degrees) throws AlreadyMovingException, NotEnabledException {
 		rotate(degrees / 360);                            // (degrees / 360) is the number of rotations, so we can just call our method above
 	}
 	
@@ -88,6 +123,13 @@ public class StepperMotor {
 	
 	public void setDirection(Direction dir) {
 		
+	}
+	
+	/**
+	 * Interrupt motor and stop current motion
+	 */
+	public void interrupt() {
+	    interrupt = true;
 	}
 	
 	/**
@@ -109,6 +151,6 @@ public class StepperMotor {
 	 * @return boolean true if motor is enabled, false otherwise
 	 */
 	public boolean isEnabled() {
-		return enableOut.get();
-	}
+        return enableOut.get();
+    }
 }

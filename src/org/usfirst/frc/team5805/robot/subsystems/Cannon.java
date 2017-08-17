@@ -2,6 +2,8 @@ package org.usfirst.frc.team5805.robot.subsystems;
 
 import org.usfirst.frc.team5805.robot.RobotMap;
 import org.usfirst.frc.team5805.robot.StepperMotor;
+import org.usfirst.frc.team5805.robot.StepperMotor.AlreadyMovingException;
+import org.usfirst.frc.team5805.robot.StepperMotor.NotEnabledException;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -72,8 +74,10 @@ public class Cannon extends Subsystem {
 		try {
 			indexerMotor.setDirection(StepperMotor.Direction.CW);
 			indexerMotor.rotate(120);
-		} catch (Exception e) {
-			System.err.println("Error: Cannot move indexer forward. Stepper output not enabled.");
+		} catch (AlreadyMovingException e) {
+			System.err.println("Error: Cannot move indexer forward. Already moving.");
+		} catch (NotEnabledException e) {
+		    System.err.println("Error: Cannot move indexer forward. Not enabled.");
 		}
 	}
 	
@@ -85,8 +89,15 @@ public class Cannon extends Subsystem {
 			indexerMotor.setDirection(StepperMotor.Direction.CCW);
 			indexerMotor.rotate(120);
 		} catch (Exception e) {
-			System.err.println("Error: Cannot move indexer backwards. Stepper output not enabled.");
+			System.err.println("Error: Cannot move indexer backwards. Error: " + e.getMessage());
 		}
+	}
+	
+	/**
+	 * Stop/interrupt indexer movement
+	 */
+	public void stopIndexer() {
+	    indexerMotor.interrupt();
 	}
 	
 	/**
