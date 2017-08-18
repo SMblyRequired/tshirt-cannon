@@ -9,9 +9,9 @@ public class StepperMotor {
 	double stepDelay;
 	int stepsPerRev;
 	
-	boolean moving = false;
-	boolean interrupt = false;
-	int stepsLeft;
+	volatile boolean moving = false;
+	volatile boolean interrupt = false;
+	volatile int stepsLeft;
 	
 	public enum Direction {        // Direction motor should move, relative to direction motor is facing
 		CW,                        // Clockwise rotation
@@ -23,7 +23,9 @@ public class StepperMotor {
 	        super("StepperMotionManager");
 	    }
 	    
+	    @Override
 	    public void run() {
+	        System.out.println("StepperMotor: Starting move");
 	        moving = true;
 	        
 	        long lastPulse = System.nanoTime();                   // Record the last time a pulse was sent, or the initial time
@@ -41,9 +43,9 @@ public class StepperMotor {
 	            }
 	        }
 	        
-	        if (interrupt) interrupt = !interrupt;                // If we've been interrupted, reset it
-	        
+	        if (interrupt) interrupt = false;                     // If we've been interrupted, reset it
 	        moving = false;                                       // Let everyone know we're done moving
+	        System.out.println("StepperMotor: Move complete");
 	    }
 	}
 	
@@ -60,6 +62,7 @@ public class StepperMotor {
 		enableOut = new DigitalOutput(this.enablePin);
 		
 		motionThread = new StepperMotionThread();
+		motionThread.start();
 		
 		enable();
 		setSpeed(120);
@@ -72,7 +75,7 @@ public class StepperMotor {
 	 */
 	public void step(int steps) throws AlreadyMovingException, NotEnabledException {
 		if (!isEnabled()) throw new NotEnabledException();
-		if (moving) throw new AlreadyMovingException();
+		if (isStepping()) throw new AlreadyMovingException();
 		
 		stepsLeft = steps;
 		motionThread.start();
@@ -91,7 +94,7 @@ public class StepperMotor {
     }
 	
 	public boolean isStepping() {
-		return moving;
+		return motionThread.isAlive() || moving;
 	}
 	
 	/**
