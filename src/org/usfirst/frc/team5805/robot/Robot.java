@@ -111,7 +111,7 @@ public class Robot extends IterativeRobot {
 		Scheduler.getInstance().run();
 		
 		SmartDashboard.putBoolean("Breach Engaged", Robot.cannon.getBreachState() == BreachState.ENGAGED ? true : false);
-		SmartDashboard.putBoolean("Indexer Enabled", Robot.cannon.indexerEnabled());
+		SmartDashboard.putBoolean("Indexer Enabled", Robot.cannon.indexerEnabled());		
 		
 		// TODO: Get some pressure sensors to retrieve current pressure within system
 	}

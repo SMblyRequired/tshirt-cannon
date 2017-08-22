@@ -10,7 +10,6 @@ public class StepperMotor {
 	int stepsPerRev;
 	
 	volatile boolean moving = false;
-	volatile boolean interrupt = false;
 	volatile int stepsLeft;
 	
 	public enum Direction {        // Direction motor should move, relative to direction motor is facing
@@ -29,7 +28,7 @@ public class StepperMotor {
 	        moving = true;
 	        
 	        long lastPulse = System.nanoTime();                   // Record the last time a pulse was sent, or the initial time
-	        while (stepsLeft > 0 && HAL.getSystemActive() && !interrupt) {          // Ensure stepper motor stops when robot is disabled, or when we've reached our end goal
+	        while (stepsLeft > 0 && HAL.getSystemActive() && !isInterrupted()) {          // Ensure stepper motor stops when robot is disabled, or when we've reached our end goal
 	            moving = true;                                    // Let everyone know we're moving
 	            
 	            long curTime = System.nanoTime();                 // Record the current time within the loop
@@ -43,7 +42,6 @@ public class StepperMotor {
 	            }
 	        }
 	        
-	        if (interrupt) interrupt = false;                     // If we've been interrupted, reset it
 	        moving = false;                                       // Let everyone know we're done moving
 	        System.out.println("StepperMotor: Move complete");
 	    }
@@ -62,10 +60,10 @@ public class StepperMotor {
 		enableOut = new DigitalOutput(this.enablePin);
 		
 		motionThread = new StepperMotionThread();
-		motionThread.start();
 		
 		enable();
-		setSpeed(120);
+		setSpeed(60);
+		setDirection(Direction.CW);
 	}
 	
 	/**
@@ -78,6 +76,10 @@ public class StepperMotor {
 		if (isStepping()) throw new AlreadyMovingException();
 		
 		stepsLeft = steps;
+		
+		System.out.println(motionThread.getState());
+		
+		motionThread = new StepperMotionThread();
 		motionThread.start();
 	}
 	
@@ -125,14 +127,14 @@ public class StepperMotor {
 	}
 	
 	public void setDirection(Direction dir) {
-		
+		dirOut.set(dir == Direction.CCW ? true : false);
 	}
 	
 	/**
 	 * Interrupt motor and stop current motion
 	 */
 	public void interrupt() {
-	    interrupt = true;
+	    motionThread.interrupt();
 	}
 	
 	/**

@@ -73,7 +73,7 @@ public class Cannon extends Subsystem {
 	public void indexerForward() {
 		try {
 			indexerMotor.setDirection(StepperMotor.Direction.CW);
-			indexerMotor.rotate(120);
+			indexerMotor.rotateDeg(120);
 		} catch (AlreadyMovingException e) {
 			System.err.println("Error: Cannot move indexer forward. Already moving.");
 		} catch (NotEnabledException e) {
@@ -87,7 +87,7 @@ public class Cannon extends Subsystem {
 	public void indexerBack() {
 		try {
 			indexerMotor.setDirection(StepperMotor.Direction.CCW);
-			indexerMotor.rotate(120);
+			indexerMotor.rotateDeg(120);
 		} catch (Exception e) {
 			System.err.println("Error: Cannot move indexer backwards. Error: " + e.getMessage());
 		}
