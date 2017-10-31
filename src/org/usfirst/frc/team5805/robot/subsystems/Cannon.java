@@ -15,6 +15,8 @@ public class Cannon extends Subsystem {
 	private DigitalOutput dumpSolenoid;
 	private StepperMotor indexerMotor;
 	
+	
+	
 	public enum BreachState {
 		ENGAGED,
 		RELEASED
@@ -24,7 +26,8 @@ public class Cannon extends Subsystem {
 		breachSolenoid = new DoubleSolenoid(RobotMap.BREACH_SOLENOID_CLOSE, RobotMap.BREACH_SOLENOID_OPEN);
 		dumpSolenoid = new DigitalOutput(0);
 		
-		indexerMotor = new StepperMotor(800, 2, 3, 4);		
+		indexerMotor = new StepperMotor((int)(200.0 * 46.656), 2, 3, 4);
+		indexerMotor.setSpeed(15);
 		this.closeDumpSolenoid();
 	}
 	
@@ -73,7 +76,7 @@ public class Cannon extends Subsystem {
 	public void indexerForward() {
 		try {
 			indexerMotor.setDirection(StepperMotor.Direction.CW);
-			indexerMotor.rotateDeg(120);
+			indexerMotor.rotateDeg(60 * 4);
 		} catch (AlreadyMovingException e) {
 			System.err.println("Error: Cannot move indexer forward. Already moving.");
 		} catch (NotEnabledException e) {
@@ -87,7 +90,7 @@ public class Cannon extends Subsystem {
 	public void indexerBack() {
 		try {
 			indexerMotor.setDirection(StepperMotor.Direction.CCW);
-			indexerMotor.rotateDeg(120);
+			indexerMotor.rotateDeg(60 * 4);
 		} catch (Exception e) {
 			System.err.println("Error: Cannot move indexer backwards. Error: " + e.getMessage());
 		}
@@ -129,4 +132,22 @@ public class Cannon extends Subsystem {
 	public boolean indexerMoving() {
 		return indexerMotor.isStepping();
 	}
+	
+	public void manualBreachForwards() {
+	    try {
+	        indexerMotor.setDirection(StepperMotor.Direction.CW);
+            indexerMotor.step((int) (1 * 46.656));
+        } catch (AlreadyMovingException | NotEnabledException e) {
+            e.printStackTrace();
+        }
+	}
+	
+	public void manualBreachBackwards() {
+        try {
+            indexerMotor.setDirection(StepperMotor.Direction.CCW);
+            indexerMotor.step((int) ((int)1 * 46.656));
+        } catch (AlreadyMovingException | NotEnabledException e) {
+            e.printStackTrace();
+        }
+    }
 }
