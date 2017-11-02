@@ -1,5 +1,6 @@
 package org.usfirst.frc.team5805.robot.subsystems;
 
+import org.usfirst.frc.team5805.robot.I2CStepper;
 import org.usfirst.frc.team5805.robot.RobotMap;
 import org.usfirst.frc.team5805.robot.StepperMotor;
 import org.usfirst.frc.team5805.robot.StepperMotor.AlreadyMovingException;
@@ -13,9 +14,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 public class Cannon extends Subsystem {
 	private DoubleSolenoid breachSolenoid;
 	private DigitalOutput dumpSolenoid;
-	private StepperMotor indexerMotor;
-	
-	
+	private I2CStepper i2cStepper;
 	
 	public enum BreachState {
 		ENGAGED,
@@ -26,8 +25,7 @@ public class Cannon extends Subsystem {
 		breachSolenoid = new DoubleSolenoid(RobotMap.BREACH_SOLENOID_CLOSE, RobotMap.BREACH_SOLENOID_OPEN);
 		dumpSolenoid = new DigitalOutput(0);
 		
-		indexerMotor = new StepperMotor((int)(200.0 * 46.656), 2, 3, 4);
-		indexerMotor.setSpeed(15);
+		i2cStepper = new I2CStepper();
 		this.closeDumpSolenoid();
 	}
 	
@@ -74,47 +72,35 @@ public class Cannon extends Subsystem {
 	 * Move indexer forward, retrieving a new, filled cartridge, ready to be fired.
 	 */
 	public void indexerForward() {
-		try {
-			indexerMotor.setDirection(StepperMotor.Direction.CW);
-			indexerMotor.rotateDeg(60 * 4);
-		} catch (AlreadyMovingException e) {
-			System.err.println("Error: Cannot move indexer forward. Already moving.");
-		} catch (NotEnabledException e) {
-		    System.err.println("Error: Cannot move indexer forward. Not enabled.");
-		}
+	    i2cStepper.indexerForward();
 	}
 	
 	/**
 	 * Move indexer backwards, retrieving an empty cartridge.
 	 */
 	public void indexerBack() {
-		try {
-			indexerMotor.setDirection(StepperMotor.Direction.CCW);
-			indexerMotor.rotateDeg(60 * 4);
-		} catch (Exception e) {
-			System.err.println("Error: Cannot move indexer backwards. Error: " + e.getMessage());
-		}
+	    i2cStepper.indexerBackwards();
 	}
 	
 	/**
 	 * Stop/interrupt indexer movement
 	 */
 	public void stopIndexer() {
-	    indexerMotor.interrupt();
+//	    indexerMotor.interrupt();
 	}
 	
 	/**
 	 * Enable the indexer. This is required for moving the indexer.
 	 */
 	public void enableIndexer() {
-		indexerMotor.enable();
+	    i2cStepper.enable();
 	}
 	
 	/**
 	 * Disable the indexer. This is required to freely move the indexer, by hand.
 	 */
 	public void disableIndexer() {
-		indexerMotor.disable();
+	    i2cStepper.disable();
 	}
 	
 	/**
@@ -122,7 +108,8 @@ public class Cannon extends Subsystem {
 	 * @return true if enabled, false if disabled
 	 */
 	public boolean indexerEnabled() {
-		return indexerMotor.isEnabled();
+	    // TODO: Reimplement this within the I2CStepper class
+		return true;
 	}
 
 	/**
@@ -130,24 +117,15 @@ public class Cannon extends Subsystem {
 	 * @return true if moving, false if not
 	 */
 	public boolean indexerMoving() {
-		return indexerMotor.isStepping();
+	    // TODO: Reimplement this within the I2CStepper class
+		return false;
 	}
 	
 	public void manualBreachForwards() {
-	    try {
-	        indexerMotor.setDirection(StepperMotor.Direction.CW);
-            indexerMotor.step((int) (1 * 46.656));
-        } catch (AlreadyMovingException | NotEnabledException e) {
-            e.printStackTrace();
-        }
+	    // TODO: Reimplement this within the I2CStepper class
 	}
 	
 	public void manualBreachBackwards() {
-        try {
-            indexerMotor.setDirection(StepperMotor.Direction.CCW);
-            indexerMotor.step((int) ((int)1 * 46.656));
-        } catch (AlreadyMovingException | NotEnabledException e) {
-            e.printStackTrace();
-        }
+        // TODO: Reimplement this within the I2CStepper class
     }
 }
